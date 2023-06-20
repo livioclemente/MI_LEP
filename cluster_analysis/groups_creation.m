@@ -10,20 +10,22 @@ baseline_samples = round(baseline_duration / 1000 * Fs);
 t_start = -0.1; % start time in seconds
 t_end = 1; % end time in seconds
 time_vector = t_start:1/Fs:t_end-1/Fs;
+n_samples = round((t_end - t_start) * Fs);
+time_axis_corrected = linspace(t_start * 1000, t_end * 1000 - 1 / Fs * 1000, n_samples);
 
 % Path tracciati
-data_path1 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/pth/ginocchio/';
-data_path2 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/pth/piede/';
-data_path3 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/pth/mano/';
-data_path4 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/ct/ginocchio/';
-data_path5 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/ct/piede/';
-data_path6 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/ct/mano/';
-data_path7 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/dl_pth/ginocchio/';
-data_path8 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/dl_pth/piede/';
-data_path9 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/dl_pth/mano/';
-data_path10 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/normali/ginocchio/';
-data_path11 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/normali/piede/';
-data_path12 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/conditions/normali/mano/';
+data_path1 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/pth/ginocchio/';
+data_path2 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/pth/piede/';
+data_path3 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/pth/mano/';
+data_path4 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/ct/ginocchio/';
+data_path5 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/ct/piede/';
+data_path6 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/ct/mano/';
+data_path7 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/dl_pth/ginocchio/';
+data_path8 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/dl_pth/piede/';
+data_path9 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/dl_pth/mano/';
+data_path10 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/normali/ginocchio/';
+data_path11 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/normali/piede/';
+data_path12 = '/Users/livioclemente/Documents/prova_connettivita/64_ch_3_site/MI/MI_LEP/conditions/normali/mano/';
 
 % List of subject files
 subject_files1 = dir([data_path1 '*.set']);
@@ -48,37 +50,28 @@ num_subjects_norm = length(subject_files_10);
 % Inizializzazione variabili
 % pth
 subj_data_pth = cell(num_subjects_pth, 1);
-subj_data_baseline_corrected_pth = cell(num_subjects_pth, 1);
 erp_mean_pth = cell(num_subjects_pth, 1);
-erp_mean_baseline_corrected_pth = cell(num_subjects_pth, 1);
 I_values_pth = cell(num_subjects_pth, 1);
 Iint_values_pth = cell(num_subjects_pth, 1);
 % ct
 subj_data_ct = cell(num_subjects_ct, 1);
-subj_data_baseline_corrected_ct = cell(num_subjects_ct, 1);
 erp_mean_ct = cell(num_subjects_ct, 1);
-erp_mean_baseline_corrected_ct = cell(num_subjects_ct, 1);
 I_values_ct = cell(num_subjects_ct, 1);
 Iint_values_ct = cell(num_subjects_ct, 1);
 % dlpth
 subj_data_dlpth = cell(num_subjects_dlpth, 1);
-subj_data_baseline_corrected_dlpth = cell(num_subjects_dlpth, 1);
 erp_mean_dlpth = cell(num_subjects_dlpth, 1);
-erp_mean_baseline_corrected_dlpth = cell(num_subjects_dlpth, 1);
 I_values_dlpth = cell(num_subjects_dlpth, 1);
 Iint_values_dlpth = cell(num_subjects_dlpth, 1);
 % norm
 subj_data_norm = cell(num_subjects_norm, 1);
-subj_data_baseline_corrected_norm = cell(num_subjects_norm, 1);
 erp_mean_norm = cell(num_subjects_norm, 1);
-erp_mean_baseline_corrected_norm = cell(num_subjects_norm, 1);
 I_values_norm = cell(num_subjects_norm, 1);
 Iint_values_norm = cell(num_subjects_norm, 1);
 
 %%
 
 % Pazienti PTH
-
 for s = 1:num_subjects_pth
 
     EEG1 = pop_loadset(subject_files1(s).name, data_path1);
@@ -86,12 +79,8 @@ for s = 1:num_subjects_pth
     EEG3 = pop_loadset(subject_files3(s).name, data_path3);
     subj_data_pth{s} = cat(3, EEG1.data, EEG2.data, EEG3.data);
 
-    
-    % Subtract baseline mean from each trial for each condition
-    subj_data_baseline_corrected_pth{s} = subj_data_pth{s} - mean(subj_data_pth{s}(:, 1:baseline_samples, :), 2);
-
-    [electrodes, Nt, trials1] = size(subj_data_baseline_corrected_pth{s});
-    x_pth = squeeze(subj_data_baseline_corrected_pth{s}(11, :, :)); % Select one electrode
+    [electrodes, Nt, trials1] = size(subj_data_pth{s});
+    x_pth = squeeze(subj_data_pth{s}(11, :, :)); % Select one electrode
 
     % stim vector for all subjects
     trials1 = size(EEG1.data, 3);
@@ -111,10 +100,10 @@ for s = 1:num_subjects_pth
 
     Nintt_pth = Nt;
     Iint_pth = zeros(Nintt_pth, Nintt_pth);
-    noise=.00000005*randn(size(x_pth,1),1);
+    noise = .00000005 * randn(size(x_pth, 1), 1);
     for t1_pth = 1:Nintt_pth
-        for t2_pth = (t1_pth+1):Nintt_pth
-            Ijoint_pth = mi_gg([x_pth(:, t1_pth) x_pth(:, t2_pth)+noise], stim_pth(:, 1), true, true);
+        for t2_pth = (t1_pth + 1):Nintt_pth
+            Ijoint_pth = mi_gg([x_pth(:, t1_pth) x_pth(:, t2_pth) + noise], stim_pth(:, 1), true, true);
             Iint_pth(t1_pth, t2_pth) = Ijoint_pth - I_pth(t1_pth) - I_pth(t2_pth);
         end
     end
@@ -125,22 +114,14 @@ for s = 1:num_subjects_pth
     Iint_values_pth{s} = Iint_pth;
 
     % average ERP for each condition
-    erp_mean_pth{s} = mean(subj_data_baseline_corrected_pth{s}, 3);
-    n_samples_pth = size(erp_mean_pth{s}, 2);
-    time_axis_corrected_pth = linspace(t_start * 1000, t_end * 1000 - 1 / Fs * 1000, n_samples_pth);
-
-    % baseline correction
-    baseline_range_pth = find(time_vector >= -100 & time_vector <= 0);
-    erp_mean_baseline_pth{s} = mean(erp_mean_pth{s}(:, baseline_range_pth), 2);
-
-    erp_mean_baseline_corrected_pth{s} = erp_mean_pth{s} - repmat(erp_mean_baseline_pth{s}, 1, size(erp_mean_pth{s}, 2));
+    erp_mean_pth{s} = mean(subj_data_pth{s}, 3);
 
 end
 
 % group average for Mutual Information, Iint, and ERP
 group_I_values_pth = mean(cat(3, I_values_pth{:}), 3);
 group_Iint_values_pth = mean(cat(3, Iint_values_pth{:}), 3);
-group_erp_mean_baseline_corrected_pth = mean(cat(3, erp_mean_baseline_corrected_pth{:}), 3);
+group_erp_mean_pth = mean(cat(3, erp_mean_pth{:}), 3);
 
 %%
 
@@ -153,11 +134,8 @@ for s = 1:num_subjects_ct
     EEG6 = pop_loadset(subject_files6(s).name, data_path6);
     subj_data_ct{s} = cat(3, EEG4.data, EEG5.data, EEG6.data);
 
-    % Subtract baseline mean from each trial for each condition
-    subj_data_baseline_corrected_ct{s} = subj_data_ct{s} - mean(subj_data_ct{s}(:, 1:baseline_samples, :), 2);
-
-    [electrodes, Nt_ct, trials4] = size(subj_data_baseline_corrected_ct{s});
-    x_ct = squeeze(subj_data_baseline_corrected_ct{s}(11, :, :)); % Select one electrode
+    [electrodes, Nt_ct, trials4] = size(subj_data_ct{s});
+    x_ct = squeeze(subj_data_ct{s}(11, :, :)); % Select one electrode
 
     % stim vector for all subjects
     trials4 = size(EEG4.data, 3);
@@ -191,22 +169,13 @@ for s = 1:num_subjects_ct
     Iint_values_ct{s} = Iint_ct;
 
     % average ERP for each condition
-    erp_mean_ct{s} = mean(subj_data_baseline_corrected_ct{s}, 3);
-    n_samples_ct = size(erp_mean_ct{s}, 2);
-    time_axis_corrected_ct = linspace(t_start * 1000, t_end * 1000 - 1 / Fs * 1000, n_samples_ct);
-
-    % baseline correction
-    baseline_range_ct = find(time_vector >= -100 & time_vector <= 0);
-    erp_mean_baseline_ct{s} = mean(erp_mean_ct{s}(:, baseline_range_ct), 2);
-
-    erp_mean_baseline_corrected_ct{s} = erp_mean_ct{s} - repmat(erp_mean_baseline_ct{s}, 1, size(erp_mean_ct{s}, 2));
-
+    erp_mean_ct{s} = mean(subj_data_ct{s}, 3);
 end
 
 % group average for Mutual Information, Iint, and ERP
 group_I_values_ct = mean(cat(3, I_values_ct{:}), 3);
 group_Iint_values_ct = mean(cat(3, Iint_values_ct{:}), 3);
-group_erp_mean_baseline_corrected_ct = mean(cat(3, erp_mean_baseline_corrected_ct{:}), 3);
+group_erp_mean_ct = mean(cat(3, erp_mean_ct{:}), 3);
 
 %%
 
@@ -219,12 +188,9 @@ for s = 1:num_subjects_dlpth
     EEG9 = pop_loadset(subject_files9(s).name, data_path9);
     subj_data_dlpth{s} = cat(3, EEG7.data, EEG8.data, EEG9.data);
 
-    % Subtract baseline mean from each trial for each condition
-    subj_data_baseline_corrected_dlpth{s} = subj_data_dlpth{s} - mean(subj_data_dlpth{s}(:, 1:baseline_samples, :), 2);
-
     % Proceed with the rest of the script using the baseline-corrected data
-    [electrodes, Nt_dlpth, trials7] = size(subj_data_baseline_corrected_dlpth{s});
-    x_dlpth = squeeze(subj_data_baseline_corrected_dlpth{s}(11, :, :)); % Select one electrode
+    [electrodes, Nt_dlpth, trials7] = size(subj_data_dlpth{s});
+    x_dlpth = squeeze(subj_data_dlpth{s}(11, :, :)); % Select one electrode
 
     % Create the stim vector with condition labels for all subjects
     trials7 = size(EEG7.data, 3);
@@ -258,22 +224,13 @@ for s = 1:num_subjects_dlpth
     Iint_values_dlpth{s} = Iint_dlpth;
 
     % Calculate the average ERP for each condition
-    erp_mean_dlpth{s} = mean(subj_data_baseline_corrected_dlpth{s}, 3);
-    n_samples_dlpth = size(erp_mean_dlpth{s}, 2);
-    time_axis_corrected_dlpth = linspace(t_start * 1000, t_end * 1000 - 1 / Fs * 1000, n_samples_dlpth);
-
-    % Apply baseline correction
-    baseline_range_dlpth = find(time_vector >= -100 & time_vector <= 0);
-    erp_mean_baseline_dlpth{s} = mean(erp_mean_dlpth{s}(:, baseline_range_dlpth), 2);
-
-    erp_mean_baseline_corrected_dlpth{s} = erp_mean_dlpth{s} - repmat(erp_mean_baseline_dlpth{s}, 1, size(erp_mean_dlpth{s}, 2));
-
+    erp_mean_dlpth{s} = mean(subj_data_dlpth{s}, 3);
 end
 
 % Calculate the group average for Mutual Information, Iint, and ERP
 group_I_values_dlpth = mean(cat(3, I_values_dlpth{:}), 3);
 group_Iint_values_dlpth = mean(cat(3, Iint_values_dlpth{:}), 3);
-group_erp_mean_baseline_corrected_dlpth = mean(cat(3, erp_mean_baseline_corrected_dlpth{:}), 3);
+group_erp_mean_dlpth = mean(cat(3, erp_mean_dlpth{:}), 3);
 
 %%
 
@@ -286,12 +243,9 @@ for s = 1:num_subjects_norm
     EEG12 = pop_loadset(subject_files12(s).name, data_path12);
     subj_data_norm{s} = cat(3, EEG10.data, EEG11.data, EEG12.data);
 
-    % Subtract baseline mean from each trial for each condition
-    subj_data_baseline_corrected_norm{s} = subj_data_norm{s} - mean(subj_data_norm{s}(:, 1:baseline_samples, :), 2);
-
     % Proceed with the rest of the script using the baseline-corrected data
-    [electrodes, Nt_norm, trials10] = size(subj_data_baseline_corrected_norm{s});
-    x_norm = squeeze(subj_data_baseline_corrected_norm{s}(11, :, :)); % Select one electrode
+    [electrodes, Nt_norm, trials10] = size(subj_data_norm{s});
+    x_norm = squeeze(subj_data_norm{s}(11, :, :)); % Select one electrode
 
     % Create the stim vector with condition labels for all subjects
     trials10 = size(EEG10.data, 3);
@@ -325,71 +279,26 @@ for s = 1:num_subjects_norm
     Iint_values_norm{s} = Iint_norm;
 
     % Calculate the average ERP for each condition
-    erp_mean_norm{s} = mean(subj_data_baseline_corrected_norm{s}, 3);
-    n_samples_norm = size(erp_mean_norm{s}, 2);
-    time_axis_corrected_norm = linspace(t_start * 1000, t_end * 1000 - 1 / Fs * 1000, n_samples_norm);
-
-    % Apply baseline correction
-    baseline_range_norm = find(time_vector >= -100 & time_vector <= 0);
-    erp_mean_baseline_norm{s} = mean(erp_mean_norm{s}(:, baseline_range_norm), 2);
-
-    erp_mean_baseline_corrected_norm{s} = erp_mean_norm{s} - repmat(erp_mean_baseline_norm{s}, 1, size(erp_mean_norm{s}, 2));
-
+    erp_mean_norm{s} = mean(subj_data_norm{s}, 3);
 end
 
 % Calculate the group average for Mutual Information, Iint, and ERP
 group_I_values_norm = mean(cat(3, I_values_norm{:}), 3);
 group_Iint_values_norm = mean(cat(3, Iint_values_norm{:}), 3);
-group_erp_mean_baseline_corrected_norm = mean(cat(3, erp_mean_baseline_corrected_norm{:}), 3);
+group_erp_mean_norm = mean(cat(3, erp_mean_norm{:}), 3);
 
 %%
 
 %Salvataggio dei dati
 
-% pth
-all_subj_data_pth = cell(num_subjects_pth, 1);
-for s = 1:num_subjects_pth
-    % ...
+% Salvataggio dei dati per il gruppo CT
+save('group_ct.mat', 'group_I_values_ct', 'group_Iint_values_ct', 'group_erp_mean_ct', 'I_values_ct', 'Iint_values_ct', 'erp_mean_ct', 'subj_data_ct', 'Nt', 'time_axis_corrected', 'num_subjects_ct', 'stim_ct', 'x_ct');
 
-    % Store all subject data for each condition
-    all_subj_data_pth{s} = subj_data_baseline_corrected_pth{s};
+% Salvataggio dei dati per il gruppo PTH
+save('group_pth.mat', 'group_I_values_pth', 'group_Iint_values_pth', 'group_erp_mean_pth', 'I_values_pth', 'Iint_values_pth', 'erp_mean_pth', 'subj_data_pth', 'Nt', 'time_axis_corrected', 'num_subjects_pth', 'stim_pth', 'x_pth');
 
-    % ...
-end
-save('data_pth.mat', 'group_I_values_pth', 'group_Iint_values_pth', 'group_erp_mean_baseline_corrected_pth', 'I_values_pth', 'Iint_values_pth', 'erp_mean_baseline_corrected_pth', 'all_subj_data_pth', 'hdr');
+% Salvataggio dei dati per il gruppo DL_PTH
+save('group_dlpth.mat', 'group_I_values_dlpth', 'group_Iint_values_dlpth', 'group_erp_mean_dlpth', 'I_values_dlpth', 'Iint_values_dlpth', 'erp_mean_dlpth', 'subj_data_dlpth', 'Nt', 'time_axis_corrected', 'num_subjects_dlpth', 'stim_dlpth', 'x_dlpth');
 
-% ct
-all_subj_data_ct = cell(num_subjects_ct, 1);
-for s = 1:num_subjects_ct
-    % ...
-
-    % Store all subject data for each condition
-    all_subj_data_ct{s} = subj_data_baseline_corrected_ct{s};
-
-    % ...
-end
-save('data_ct.mat', 'group_I_values_ct', 'group_Iint_values_ct', 'group_erp_mean_baseline_corrected_ct', 'I_values_ct', 'Iint_values_ct', 'erp_mean_baseline_corrected_ct', 'all_subj_data_ct', 'hdr');
-
-% dlpth
-all_subj_data_dlpth = cell(num_subjects_dlpth, 1);
-for s = 1:num_subjects_dlpth
-    % ...
-
-    % Store all subject data for each condition
-    all_subj_data_dlpth{s} = subj_data_baseline_corrected_dlpth{s};
-
-    % ...
-end
-save('data_dlpth.mat', 'group_I_values_dlpth', 'group_Iint_values_dlpth', 'group_erp_mean_baseline_corrected_dlpth', 'I_values_dlpth', 'Iint_values_dlpth', 'erp_mean_baseline_corrected_dlpth', 'all_subj_data_dlpth', 'hdr');
-
-% norm
-all_subj_data_norm = cell(num_subjects_norm, 1);
-for s = 1:num_subjects_norm
-    % ...
-
-    % Store all subject data for each condition
-    all_subj_data_norm{s} = subj_data_baseline_corrected_norm{s};
-
-    % ...
-end
-save('data_norm.mat', 'group_I_values_norm', 'group_Iint_values_norm', 'group_erp_mean_baseline_corrected_norm', 'I_values_norm', 'Iint_values_norm', 'erp_mean_baseline_corrected_norm', 'all_subj_data_norm', 'hdr');
+% Salvataggio dei dati per il gruppo NORM
+save('group_norm.mat', 'group_I_values_norm', 'group_Iint_values_norm', 'group_erp_mean_norm', 'I_values_norm', 'Iint_values_norm', 'erp_mean_norm', 'subj_data_norm', 'Nt', 'time_axis_corrected', 'num_subjects_norm', 'stim_norm', 'x_norm');
